@@ -573,7 +573,7 @@ async function convQuotes(text = "") {
 			imageMatch[index] = imageMatch[index].replace(/\s?$/, '');
 			let imageVaild = await isImageURL(imageMatch[index]);
 			if (imageVaild) {
-				let imageEmbed = new EmbedBuilder().setURL('https://www.patreon.com/HKTRPG').setImage(imageMatch[index]);
+				let imageEmbed = new EmbedBuilder().setImage(imageMatch[index]);
 				if (imageMatch.length === 1) embed.setImage(imageMatch[index]);
 				else embeds.push(imageEmbed);
 				text = text.replace(imageMatch[index], '')
@@ -1378,7 +1378,7 @@ async function count() {
 }
 
 async function count2() {
-	if (!client.cluster) return '🌼bothelp | hktrpg.com🍎';
+	if (!client.cluster) return 'null';
 
 	try {
 		// Get all subgroup IDs
@@ -1511,7 +1511,7 @@ async function count2() {
 	} catch (error) {
 		console.error(`disocrdbot #617 error: ${error.message}`);
 		// Do not respawn subgroups here - let the subgroup manager handle it
-		return '🌼bothelp | hktrpg.com🍎';
+		return 'null';
 	}
 }
 
@@ -1805,7 +1805,7 @@ async function repeatMessages(discord, message) {
 
 		// Check if webhook is valid before proceeding
 		if (!webhook || !webhook.webhook) {
-			await SendToReplychannel({ replyText: '不能成功發送扮演發言, 請檢查你有授權HKTRPG 管理Webhook的權限, \n此為本功能必須權限', channelid: discord.channel.id });
+			await SendToReplychannel({ replyText: '不能成功發送扮演發言, 請檢查你有授權管理Webhook的權限, \n此為本功能必須權限', channelid: discord.channel.id });
 			return;
 		}
 
@@ -1824,7 +1824,7 @@ async function repeatMessages(discord, message) {
 
 	} catch (error) {
 		console.error('Error in repeatMessages:', error.message);
-		await SendToReplychannel({ replyText: '不能成功發送扮演發言, 請檢查你有授權HKTRPG 管理Webhook的權限, \n此為本功能必須權限', channelid: discord.channel.id });
+		await SendToReplychannel({ replyText: '不能成功發送扮演發言, 請檢查你有授權管理Webhook的權限, \n此為本功能必須權限', channelid: discord.channel.id });
 		return;
 	}
 
@@ -1849,7 +1849,7 @@ async function manageWebhook(discord) {
 		//'Incoming'
 		if (!webhook) {
 			const hooks = isThread ? await client.channels.fetch(channel.parentId) : channel;
-			await hooks.createWebhook({ name: "HKTRPG .me Function", avatar: "https://user-images.githubusercontent.com/23254376/113255717-bd47a300-92fa-11eb-90f2-7ebd00cd372f.png" })
+			await hooks.createWebhook({ name: client.user.username, avatar: client.user.displayAvatarURL() })
 			webhooks = isThread ? await channel.guild.fetchWebhooks() : await channel.fetchWebhooks();
 			webhook = webhooks.find(v => {
 				return (v.channelId == channel.parentId || v.channelId == channel.id) && v.token;
@@ -1862,7 +1862,7 @@ async function manageWebhook(discord) {
 	} catch (error) {
 		console.error('manageWebhook error:', error.message);
 		try {
-			await SendToReplychannel({ replyText: '不能新增Webhook.\n 請檢查你有授權HKTRPG 管理Webhook的權限, \n此為本功能必須權限', channelid: (discord.channel && discord.channel.id) || discord.channelId });
+			await SendToReplychannel({ replyText: '不能新增Webhook.\n 請檢查你有授權管理Webhook的權限, \n此為本功能必須權限', channelid: (discord.channel && discord.channel.id) || discord.channelId });
 		} catch (sendError) {
 			console.error('Failed to send webhook error message:', sendError.message);
 		}
@@ -1881,7 +1881,7 @@ async function roleReact(channelid, message) {
 		await schema.roleReact.findByIdAndUpdate(message.roleReactMongooseId, { messageID: sendMessage.id }).catch(error => console.error('[Discord Bot] MongoDB error in roleReact update:', error.name, error.reason))
 
 	} catch {
-		await SendToReplychannel({ replyText: '不能成功增加ReAction, 請檢查你有授權HKTRPG 新增ReAction的權限, \n此為本功能必須權限', channelid });
+		await SendToReplychannel({ replyText: '不能成功增加ReAction, 請檢查你有授權新增ReAction的權限, \n此為本功能必須權限', channelid });
 		return;
 	}
 
@@ -1899,7 +1899,7 @@ async function newRoleReact(channel, message) {
 		}
 
 	} catch {
-		await SendToReplychannel({ replyText: '不能成功增加ReAction, 請檢查你有授權HKTRPG 新增ReAction的權限, \n此為本功能必須權限' });
+		await SendToReplychannel({ replyText: '不能成功增加ReAction, 請檢查你有授權新增ReAction的權限, \n此為本功能必須權限' });
 		return;
 	}
 
@@ -3751,7 +3751,7 @@ async function handlingEditMessage(message, rplyVal) {
 
 
 			} else
-				return message.reply({ content: '根據Discord的規則，只能修改此BOT(HKTRPG)和Webhook所發出的訊息，請重新檢查' });
+				return message.reply({ content: '根據Discord的規則，只能修改此BOT和Webhook所發出的訊息，請重新檢查' });
 	} catch (error) {
 		const errorContext = {
 			message: error.message,
@@ -3801,8 +3801,8 @@ async function sendCronWebhook({ channelid, replyText, data }) {
 					if (!webhook) {
 						try {
 							webhook = await targetChannel.createWebhook({
-								name: "HKTRPG .me Function",
-								avatar: "https://user-images.githubusercontent.com/23254376/113255717-bd47a300-92fa-11eb-90f2-7ebd00cd372f.png"
+								name: client.user.username,
+								avatar: client.user.displayAvatarURL()
 							});
 						} catch (error) {
 							console.error(`[Shard ${c.cluster.id}] Failed to create webhook in channel ${targetChannel.id}: ${error.message}`);
